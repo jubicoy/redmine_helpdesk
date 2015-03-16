@@ -49,7 +49,7 @@ module RedmineHelpdesk
         @issue_url = url_for(:controller => 'issues', :action => 'show', :id => issue)
 
         __mail__(
-          helpdesk_headers(issue, recipient, text)
+          helpdesk_headers(recipient, text)
         )
       end
 
@@ -72,9 +72,9 @@ module RedmineHelpdesk
         other_recipients
       end
 
-      def helpdesk_headers(issue, recipient, text)
-        p = issue.project
-        from = helpdesk_from(issue)
+      def helpdesk_headers(recipient, text)
+        p = @issue.project
+        from = helpdesk_from(@issue)
         reply = helpdesk_customvalue(p, 'helpdesk-first-reply')
         footer = helpdesk_customvalue(p, 'helpdesk-email-footer')
         if text.present?
@@ -82,14 +82,14 @@ module RedmineHelpdesk
           body = "#{text}\n\n#{footer}"
         elsif reply.present?
           # sending out the first reply message
-          body = "#{reply}\n\n#{footer}"
+          body = "#{reply}"
         end
 
         h = {
           :from     => from,
           :reply_to => from,
           :to       => recipient,
-          :subject  => helpdesk_subject(issue),
+          :subject  => helpdesk_subject,
           :date     => Time.zone.now
         }
 
@@ -97,17 +97,17 @@ module RedmineHelpdesk
           h[:template_path] = 'mailer'
           h[:template_name] = 'issue_edit'
         else
-          h[:body] = body.gsub("##issue-id##", issue.id.to_s)
+          h[:body] = MacroExpander.expand(body, @issue, @journal)
         end
         h
       end
 
-      def helpdesk_subject(issue)
-        subject = helpdesk_customvalue(issue.project, 'helpdesk-subject')
+      def helpdesk_subject
+        subject = helpdesk_customvalue(@issue.project, 'helpdesk-subject')
         if subject.blank?
-          "[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}] (#{issue.status.name}) #{issue.subject}"
+          "[#{@issue.project.name} - #{@issue.tracker.name} ##{@issue.id}] (#{@issue.status.name}) #{@issue.subject}"
         else
-          subject
+          MacroExpander.expand(subject, @issue, @journal)
         end
       end
 

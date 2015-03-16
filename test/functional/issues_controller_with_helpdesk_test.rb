@@ -119,10 +119,11 @@ class IssuesControllerWithHelpdeskTest < ActionController::TestCase
     end
     assert_redirected_to :action => 'show', :id => '1'
 
-    assert Issue.find(1).journals.last.send_to_owner
+    issue = Issue.find(1)
+    assert issue.journals.last.send_to_owner
     mail = ActionMailer::Base.deliveries.last
     assert_equal "owner@example.com",  mail.to.first
-    assert_equal "Assigned\n\nemail footer", mail.body.to_s
+    assert_equal "Assigned\n\nemail footer #{issue.project.name}", mail.body.to_s
   end
 
   test "send_to_owner not checked" do

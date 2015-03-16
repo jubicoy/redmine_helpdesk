@@ -3,6 +3,7 @@ require 'helpdesk_hooks'
 require 'journal_patch'
 require 'mail_handler_patch'
 require 'mailer_patch'
+require 'macro_expander'
 
 Redmine::Plugin.register :redmine_helpdesk do
   name 'Redmine helpdesk plugin'

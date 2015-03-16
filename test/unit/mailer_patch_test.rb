@@ -98,7 +98,7 @@ class MailerPatchTest < ActionMailer::TestCase
     assert_match /^redmine\.issue-1\.\d+\.[a-f0-9]+@example\.net/, email.message_id
     assert_match /redmine\.issue-1\.\d+@example\.net/, email.references
 
-    assert_equal "first reply\n\nemail footer",
+    assert_equal "first reply #{issue.id}",
         email.body.to_s
   end
 
@@ -115,7 +115,7 @@ class MailerPatchTest < ActionMailer::TestCase
     assert_match /^redmine\.issue-1\.\d+\.[a-f0-9]+@example\.net/, email.message_id
     assert_match /redmine\.issue-1\.\d+@example\.net/, email.references
 
-    assert_equal "text\n\nemail footer",
+    assert_equal "text\n\nemail footer #{issue.project.name}",
         email.body.to_s
   end
 
@@ -146,7 +146,7 @@ class MailerPatchTest < ActionMailer::TestCase
         email_to_supportclient(issue, "owner_email").
         deliver
     assert !ActionMailer::Base.deliveries.empty?
-    assert_equal "subject",
+    assert_equal "subject #{issue.id}",
         email.subject.to_s
   end
 
