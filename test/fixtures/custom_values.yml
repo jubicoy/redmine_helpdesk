@@ -53,3 +53,9 @@ custom_values_009:
   customized_id: 1
   id: 9
   value: owner@example.com
+custom_values_010:
+  customized_type: Project
+  custom_field_id: 6
+  customized_id: 1
+  id: 10
+  value: subject

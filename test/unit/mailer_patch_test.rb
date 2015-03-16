@@ -140,8 +140,26 @@ class MailerPatchTest < ActionMailer::TestCase
     assert_match /redmine\.issue-2\.\d+@example\.net/, email.references
   end
 
-  def test_subject
+  def test_custom_subject
     issue = Issue.find(1)
+    email = Mailer.
+        email_to_supportclient(issue, "owner_email").
+        deliver
+    assert !ActionMailer::Base.deliveries.empty?
+    assert_equal "subject",
+        email.subject.to_s
+  end
+
+  def test_default_subject
+    issue = Issue.find(1)
+    f = CustomField.find_by_name('helpdesk-subject')
+    v = CustomValue.find(
+      :first,
+      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.project.id, f.id]
+    )
+    v.value = ""
+    v.save
+
     email = Mailer.
         email_to_supportclient(issue, "owner_email").
         deliver

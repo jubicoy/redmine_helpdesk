@@ -103,7 +103,12 @@ module RedmineHelpdesk
       end
 
       def helpdesk_subject(issue)
-        "[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}] (#{issue.status.name}) #{issue.subject}"
+        subject = helpdesk_customvalue(issue.project, 'helpdesk-subject')
+        if subject.blank?
+          "[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}] (#{issue.status.name}) #{issue.subject}"
+        else
+          subject
+        end
       end
 
       def helpdesk_from(issue)
