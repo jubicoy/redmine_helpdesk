@@ -82,7 +82,98 @@ class MailHandlerPatchTest < ActiveSupport::TestCase
     assert User.find(2).login, issue.author.login
   end
 
-  # TODO: Attachments
+  def test_form_compat_override_block_respected_as_anonymous
+    assert_no_difference 'User.count' do
+      Mailer.any_instance.expects(:email_to_supportclient).with(kind_of(Issue), "form@somenet.foo").once
+      issue = submit_email('form_compat_ticket_by_unknown_user_w_override.eml',
+                       :issue => {:project => 'helpdesk_project_1'},
+                       :unknown_user => 'accept',
+                       :no_permission_check => 1)
+      assert_issue_created issue
+
+      owner_field = CustomField.find_by_name('owner-email')
+      owner_value = CustomValue.find(
+          :first,
+          :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+      )
+      assert_equal "form@somenet.foo", owner_value.value
+      assert issue.author.anonymous?
+    end
+  end
+
+  def test_form_compat_owner_email_overriden_as_anonymous
+    assert_no_difference 'User.count' do
+      Mailer.any_instance.expects(:email_to_supportclient).with(kind_of(Issue), "john.doe@somenet.foo").once
+      issue = submit_email('form_compat_ticket_by_unknown_user_w_override.eml',
+                       :issue => {:project => 'helpdesk_project_1'},
+                       :allow_override => 'owner-email',
+                       :unknown_user => 'accept',
+                       :no_permission_check => 1)
+      assert_issue_created issue
+
+      owner_field = CustomField.find_by_name('owner-email')
+      owner_value = CustomValue.find(
+          :first,
+          :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+      )
+      assert_equal "john.doe@somenet.foo", owner_value.value
+      assert issue.author.anonymous?
+    end
+  end
+
+  def test_form_compat_override_block_respected_as_supportclient
+    Mailer.any_instance.expects(:email_to_supportclient).with(kind_of(Issue), "form@somenet.foo")
+    issue = submit_email('form_compat_ticket_by_user_2_w_override.eml',
+                         :issue => {:project => 'helpdesk_project_1'},
+                         :unknown_user => 'accept',
+                         :no_permission_check => 1)
+    assert_issue_created issue
+
+    owner_field = CustomField.find_by_name('owner-email')
+    owner_value = CustomValue.find(
+      :first,
+      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+    )
+
+    assert_equal "form@somenet.foo", owner_value.value
+    assert issue.author.anonymous?
+  end
+
+  def test_form_compat_owner_email_overriden_as_supportclient
+    Mailer.any_instance.expects(:email_to_supportclient).with(kind_of(Issue), User.find(2).mail)
+    issue = submit_email('form_compat_ticket_by_user_2_w_override.eml',
+                         :issue => {:project => 'helpdesk_project_2'},
+                         :allow_override => 'owner-email',
+                         :unknown_user => 'accept',
+                         :no_permission_check => 1)
+    assert_issue_created issue
+
+    owner_field = CustomField.find_by_name('owner-email')
+    owner_value = CustomValue.find(
+      :first,
+      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+    )
+    assert_equal User.find(2).mail, owner_value.value
+    assert User.find(2).login, issue.author.login
+  end
+
+  def test_form_compat_owner_email_not_set_if_not_supportclient
+    Mailer.any_instance.expects(:email_to_supportclient).never
+    issue = submit_email('form_compat_ticket_by_user_1_w_override.eml',
+                         :issue => {:project => 'helpdesk_project_1'},
+                         :allow_override => 'owner-email',
+                         :unknown_user => 'accept',
+                         :no_permission_check => 1)
+    assert_issue_created issue
+
+    owner_field = CustomField.find_by_name('owner-email')
+    owner_value = CustomValue.find(
+      :first,
+      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+    )
+    assert owner_value.value.blank?
+    assert User.find(1).login, issue.author.login
+  end
 
   def submit_email(filename, options={})
     raw = IO.read(File.join(FIXTURES_PATH, filename))
