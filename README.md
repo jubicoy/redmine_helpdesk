@@ -1,6 +1,8 @@
 # Redmine Helpdesk
 
-Lightweight helpdesk plugin for redmine. Adds the email sender-address of an anonymous supportclient to the custom field 'owner-email' of a ticket which was created by a support email. Answers can be send to the supportclient by checking the support checkbox on a journal.
+[![Build Status](https://travis-ci.org/jubicoy/redmine_helpdesk.svg?branch=jubicoy%2Fmaster)](https://travis-ci.org/jubicoy/redmine_helpdesk) [![Code Climate](https://codeclimate.com/github/jubicoy/redmine_helpdesk/badges/gpa.svg)](https://codeclimate.com/github/jubicoy/redmine_helpdesk) [![Test Coverage](https://codeclimate.com/github/jubicoy/redmine_helpdesk/badges/coverage.svg)](https://codeclimate.com/github/jubicoy/redmine_helpdesk)
+
+Lightweight helpdesk plugin for redmine. Adds the email sender-address of an anonymous supportclient to the custom field 'owner-email' of a ticket which was created by a support email. Answers can be send to the supportclient by checking the support checkbox on a journal.A
 
 ## Features
 
