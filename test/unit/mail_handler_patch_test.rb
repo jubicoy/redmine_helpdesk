@@ -175,6 +175,31 @@ class MailHandlerPatchTest < ActiveSupport::TestCase
     assert User.find(1).login, issue.author.login
   end
 
+  def test_first_reply_not_sent_when_send_first_reply_false
+    Mailer.any_instance.expects(:email_to_supportclient).never
+    send_first_reply_field = CustomField.find_by_name('helpdesk-send-first-reply')
+    send_first_reply_value = CustomValue.find(
+        :first,
+        :conditions => ["customized_id = ? AND custom_field_id = ?", Project.find(1), send_first_reply_field.id]
+    )
+    send_first_reply_value.value = false
+    send_first_reply_value.save!
+
+    issue = submit_email('ticket_by_unknown_user.eml',
+                     :issue => {:project => 'helpdesk_project_1'},
+                     :unknown_user => 'accept',
+                     :no_permission_check => 1)
+    assert_issue_created issue
+
+    owner_field = CustomField.find_by_name('owner-email')
+    owner_value = CustomValue.find(
+        :first,
+        :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, owner_field.id]
+    )
+    assert_equal "john.doe@somenet.foo", owner_value.value
+    assert issue.author.anonymous?
+  end
+
   def submit_email(filename, options={})
     raw = IO.read(File.join(FIXTURES_PATH, filename))
     yield raw if block_given?

@@ -34,7 +34,7 @@ module RedmineHelpdesk
           # on the first issue.save. So we need to send
           # the notification email to the supportclient
           # on our own.
-          Mailer.email_to_supportclient(issue, @helpdesk_sender_email).deliver
+          notify_supportclient issue
         end
         after_dispatch_to_default_hook issue
         return issue
@@ -75,6 +75,13 @@ module RedmineHelpdesk
         custom_value.save(:validate => false) # skip validation!
       end
 
+      def notify_supportclient(issue)
+        sfr = issue.project.custom_value_for(
+            CustomField.find_by_name('helpdesk-send-first-reply')).try(:value)
+        if sfr == "t"
+          Mailer.email_to_supportclient(issue, @helpdesk_sender_email).deliver
+        end
+      end
     end # module InstanceMethods
   end # module MailHandlerPatch
 end # module RedmineHelpdesk

@@ -1,4 +1,7 @@
 language: ruby
+branches:
+  only:
+  - "jubicoy/master"
 rvm:
 - 1.9.3
 - 2.1
@@ -13,12 +16,19 @@ env:
   - POSTGRES_DATABASE=redmine
   - POSTGRES_USER=postgres
   matrix:
+  - REDMINE_VERSION=3.0.0 DATABASE_ADAPTER=mysql
+  - REDMINE_VERSION=3.0.0 DATABASE_ADAPTER=postresql
   - REDMINE_VERSION=2.6.2 DATABASE_ADAPTER=mysql
   - REDMINE_VERSION=2.6.2 DATABASE_ADAPTER=postgresql
   - REDMINE_VERSION=2.5.3 DATABASE_ADAPTER=mysql
   - REDMINE_VERSION=2.5.3 DATABASE_ADAPTER=postgresql
   - REDMINE_VERSION=2.4.7 DATABASE_ADAPTER=mysql
   - REDMINE_VERSION=2.4.7 DATABASE_ADAPTER=postgresql
+matrix:
+  allow_failures:
+  - env: REDMINE_VERSION=3.0.0 DATABASE_ADAPTER=mysql
+  - env: REDMINE_VERSION=3.0.0 DATABASE_ADAPTER=postresql
+  fast_finish: true
 addons:
   code_climate:
     repo_token:

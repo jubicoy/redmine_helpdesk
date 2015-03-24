@@ -77,3 +77,13 @@ custom_fields_006:
   default_value: ""
   editable: true
   position: 1
+custom_fields_007:
+  name: helpdesk-send-first-reply
+  visible: false
+  type: ProjectCustomField
+  id: 7
+  is_required: false
+  field_format: boolean
+  default_value: true
+  editable: true
+  position: 1
