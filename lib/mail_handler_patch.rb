@@ -14,24 +14,27 @@ module RedmineHelpdesk
       # set the owner-email of a new issue created by
       # an email request
       def dispatch_to_default_with_helpdesk
+
+        # owner-email override is cleared and value cached if present
+        @helpdesk_sender_email = get_keyword_with_reset(:"owner-email")
         issue = dispatch_to_default_without_helpdesk
-        roles = issue.author.roles_for_project(issue.project)
+
+        # Correct author is fetched based on overrides if present
+        author = find_author(issue)
+        roles = author.roles_for_project(issue.project)
+
         # add owner-email only if the author has assigned some role with
         # permission treat_user_as_supportclient enabled
         if roles.any? {|role| role.allowed_to?(:treat_user_as_supportclient) }
-          sender_email = @email.from.first
-          custom_field = CustomField.find_by_name('owner-email')
-          custom_value = CustomValue.find(
-            :first,
-            :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, custom_field.id]
-          )
-          custom_value.value = sender_email
-          custom_value.save(:validate => false) # skip validation!
+          if @helpdesk_sender_email.blank?
+            @helpdesk_sender_email = @email.from.first
+          end
+          add_owner_email issue
           # regular email sending to known users is done
           # on the first issue.save. So we need to send
           # the notification email to the supportclient
           # on our own.
-          Mailer.email_to_supportclient(issue, sender_email).deliver
+          Mailer.email_to_supportclient(issue, @helpdesk_sender_email).deliver
         end
         after_dispatch_to_default_hook issue
         return issue
@@ -40,6 +43,36 @@ module RedmineHelpdesk
       # let other plugins the chance to override this
       # method to hook into dispatch_to_default
       def after_dispatch_to_default_hook(issue)
+      end
+
+      def get_keyword_with_reset(attr, options={})
+        k = get_keyword(attr, options)
+        @keywords = nil
+        rx = /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+        if rx.match(k)
+          k
+        else
+          nil
+        end
+      end
+
+      def find_author(issue)
+        author = issue.author
+        if !@helpdesk_sender_email.nil? && (a = User.find_by_mail(@helpdesk_sender_email))
+          issue.update_attribute :author_id, a.id
+          author = a
+        end
+        author
+      end
+
+      def add_owner_email(issue)
+        custom_field = CustomField.find_by_name('owner-email')
+        custom_value = CustomValue.find(
+          :first,
+          :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, custom_field.id]
+        )
+        custom_value.value = @helpdesk_sender_email
+        custom_value.save(:validate => false) # skip validation!
       end
 
     end # module InstanceMethods
