@@ -67,10 +67,9 @@ module RedmineHelpdesk
 
       def add_owner_email(issue)
         custom_field = CustomField.find_by_name('owner-email')
-        custom_value = CustomValue.find(
-          :first,
-          :conditions => ["customized_id = ? AND custom_field_id = ?", issue.id, custom_field.id]
-        )
+        custom_value = CustomValue.where(
+          "customized_id = ? AND custom_field_id = ?", issue.id, custom_field.id).
+          first
         custom_value.value = @helpdesk_sender_email
         custom_value.save(:validate => false) # skip validation!
       end
