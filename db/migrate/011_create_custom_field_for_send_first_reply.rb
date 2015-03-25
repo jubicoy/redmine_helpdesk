@@ -4,7 +4,8 @@ class CreateCustomFieldForSendFirstReply < ActiveRecord::Migration
       :name => 'helpdesk-send-first-reply',
       :editable => true,
       :visible => false,          # do not show it on the project summary page
-      :field_format => 'boolean')
+      :field_format => 'boolean',
+      :default_value => '1')
     c.type = 'ProjectCustomField' # cannot be set by mass assignement!
     c.save
   end

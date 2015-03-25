@@ -64,10 +64,10 @@ custom_values_011:
   custom_field_id: 7
   customized_id: 1
   id: 11
-  value: true
+  value: 1
 custom_values_012:
   customized_type: Project
   custom_field_id: 7
   customized_id: 2
   id: 12
-  value: true
+  value: 1

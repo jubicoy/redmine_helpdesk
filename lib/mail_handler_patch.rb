@@ -77,8 +77,8 @@ module RedmineHelpdesk
 
       def notify_supportclient(issue)
         sfr = issue.project.custom_value_for(
-            CustomField.find_by_name('helpdesk-send-first-reply')).try(:value)
-        if sfr == "t"
+            CustomField.find_by_name('helpdesk-send-first-reply'))
+        if sfr.is_a?(CustomValue) && sfr.true?
           Mailer.email_to_supportclient(issue, @helpdesk_sender_email).deliver
         end
       end

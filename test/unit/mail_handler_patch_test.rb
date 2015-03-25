@@ -182,7 +182,7 @@ class MailHandlerPatchTest < ActiveSupport::TestCase
         :first,
         :conditions => ["customized_id = ? AND custom_field_id = ?", Project.find(1), send_first_reply_field.id]
     )
-    send_first_reply_value.value = false
+    send_first_reply_value.value = "0"
     send_first_reply_value.save!
 
     issue = submit_email('ticket_by_unknown_user.eml',
