@@ -5,17 +5,7 @@ class MacroExpanderTest < ActiveSupport::TestCase
 
   self.use_transactional_fixtures = true
 
-  fixtures :projects, :projects_trackers,
-           :issues, :issue_statuses, :trackers,
-           :journals, :journal_details,
-           :attachments,
-           :members, :member_roles,
-           :roles,
-           :users,
-           :custom_fields,
-           :custom_values,
-           :custom_fields_projects,
-           :custom_fields_trackers
+  fixtures :all
 
   def test_no_changes
     s = "test string"

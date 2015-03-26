@@ -5,17 +5,7 @@ class MailerPatchTest < ActionMailer::TestCase
 
   self.use_transactional_fixtures = true
 
-  fixtures :projects, :projects_trackers,
-           :issues, :issue_statuses, :trackers,
-           :journals, :journal_details,
-           :attachments,
-           :members, :member_roles,
-           :roles,
-           :users,
-           :custom_fields,
-           :custom_values,
-           :custom_fields_projects,
-           :custom_fields_trackers
+  fixtures :all
 
   def setup
     ActionMailer::Base.deliveries.clear
@@ -50,10 +40,9 @@ class MailerPatchTest < ActionMailer::TestCase
   def test_email_default_sender
     issue = Issue.find(1)
     s = CustomField.find_by_name('helpdesk-sender-email')
-    custom_value = CustomValue.find(
-      :first,
-      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.project.id, s.id]
-    )
+    custom_value = CustomValue.where(
+      "customized_id = ? AND custom_field_id = ?", issue.project.id, s.id).
+      first
     custom_value.destroy
 
     email = Mailer.
@@ -75,10 +64,9 @@ class MailerPatchTest < ActionMailer::TestCase
   def test_email_helpdesk_sender_with_phrase
     issue = Issue.find(1)
     s = CustomField.find_by_name('helpdesk-sender-email')
-    custom_value = CustomValue.find(
-      :first,
-      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.project.id, s.id]
-    )
+    custom_value = CustomValue.where(
+      "customized_id = ? AND custom_field_id = ?", issue.project.id, s.id).
+      first
     custom_value.value = "Redmine helpdesk <reply@example.com>"
     custom_value.save
 
@@ -122,10 +110,9 @@ class MailerPatchTest < ActionMailer::TestCase
   def test_fallback_message_id
     issue = Issue.find(2)
     s = CustomField.find_by_name('helpdesk-first-reply')
-    custom_value = CustomValue.find(
-      :first,
-      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.project.id, s.id]
-    )
+    custom_value = CustomValue.where(
+      "customized_id = ? AND custom_field_id = ?", issue.project.id, s.id).
+      first
     custom_value.destroy
 
     email = Mailer.
@@ -153,10 +140,9 @@ class MailerPatchTest < ActionMailer::TestCase
   def test_default_subject
     issue = Issue.find(1)
     f = CustomField.find_by_name('helpdesk-subject')
-    v = CustomValue.find(
-      :first,
-      :conditions => ["customized_id = ? AND custom_field_id = ?", issue.project.id, f.id]
-    )
+    v = CustomValue.where(
+      "customized_id = ? AND custom_field_id = ?", issue.project.id, f.id).
+      first
     v.value = ""
     v.save
 
@@ -170,7 +156,7 @@ class MailerPatchTest < ActionMailer::TestCase
 
   # Test with single attachment and verify against fixture file
   def test_attachments_added
-    Attachment.storage_path = File.dirname(__FILE__) + '/../fixtures/files'
+    Attachment.storage_path = TestHelper.files_path + '/files'
     issue = Issue.find(1)
     email = Mailer.
         email_to_supportclient(

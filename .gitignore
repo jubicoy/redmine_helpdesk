@@ -1,2 +1,9 @@
 .DS_Store
 *~
+test/dummy
+test/dummy/*
+coverage
+coverage/*
+.vagrant
+.vagrant/*
+Gemfile.lock
