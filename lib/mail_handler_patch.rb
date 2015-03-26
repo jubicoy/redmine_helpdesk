@@ -14,7 +14,6 @@ module RedmineHelpdesk
       # set the owner-email of a new issue created by
       # an email request
       def dispatch_to_default_with_helpdesk
-
         # owner-email override is cleared and value cached if present
         @helpdesk_sender_email = get_keyword_with_reset(:"owner-email")
         issue = dispatch_to_default_without_helpdesk

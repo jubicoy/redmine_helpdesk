@@ -1,3 +1,16 @@
+## jubicoy/redmine_helpdesk
+
+0.1.0
+---
+* Added option to disable first reply
+* Added configurable email subject
+* Added MacroExpander
+* Added owner-email override
+* 3.0.x compatibility for test suites
+* Refactoring for better CodeClimate score
+
+## jfqd/redmine_helpdesk
+
 0.0.12
 ---
 * Add support for non-anonymous supportclients
@@ -31,7 +44,7 @@
 
 0.0.5
 ---
-* Fix skip validation issue 
+* Fix skip validation issue
 
 0.0.4
 ---
