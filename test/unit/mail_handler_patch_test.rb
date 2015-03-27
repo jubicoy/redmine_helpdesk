@@ -184,8 +184,8 @@ class MailHandlerPatchTest < ActiveSupport::TestCase
   end
 
   def assert_issue_created(issue)
-    assert issue.is_a?(Issue)
-    assert !issue.new_record?
+    assert issue.is_a?(Issue), issue.class.name
+    assert !issue.new_record?, "Given issue is not new record"
     issue.reload
   end
 end
